@@ -18,6 +18,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Checkout Pull Request
+        if: github.event.issue
+        run: hub pr checkout ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build image
         run: |
           docker build . \
@@ -27,11 +32,14 @@ jobs:
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
       - name: Push image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           IMAGE_ID=ghcr.io/elipinska/"$IMAGE_NAME"
 
           # For issue comments, use a short sha as the version
-          VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.pull_request.number }} -q .head.sha | cut -c-7)"
+
+          VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }} -q .head.sha | cut -c-7)"
 
           # For tagged releases, use the version tag instead
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
