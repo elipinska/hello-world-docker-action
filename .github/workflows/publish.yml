@@ -39,6 +39,8 @@ jobs:
 
           # For issue comments, use a short sha as the version
 
+          echo "${{ github.sha}}"
+
           VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }} -q .head.sha | cut -c-7)"
 
           # For tagged releases, use the version tag instead
