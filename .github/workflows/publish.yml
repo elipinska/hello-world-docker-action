@@ -1,49 +1,43 @@
-name: Demo Push
+name: Push to Github Container Registry
 
 on:
   release:
     types: [released]
   issue_comment:
     types: [created]
-
 env:
   IMAGE_NAME: hello-world-docker-action
 
 jobs:
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
   push:
     runs-on: ubuntu-latest
     if: (github.event.issue.pull_request && contains(github.event.comment.body, 'container push')) || github.event.release
     permissions:
       packages: write
       contents: read
-
     steps:
-      - uses: actions/checkout@v3
-
-      # - name: Build image
-      #   run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
-
-      # - name: Log in to registry
-      #   # This is where you will update the personal access token to GITHUB_TOKEN
-      #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build image
+        run: |
+          docker build . \
+          --file Dockerfile \
+          --tag "$IMAGE_NAME" \
+          --label org.opencontainers.image.source=https://github.com/${{ github.repository }}
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
       - name: Push image
         run: |
-          echo "${{ github.ref }}"
-          echo "${{ github.sha }}" | cut -c-7
-          # IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID=ghcr.io/elipinska/"$IMAGE_NAME"
 
-          # # Change all uppercase to lowercase
-          # IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # # Strip git ref prefix from version
-          # VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # # Strip "v" prefix from tag name
-          # [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # # Use Docker `latest` tag convention
-          # [ "$VERSION" == "master" ] && VERSION=latest
-          # echo IMAGE_ID=$IMAGE_ID
-          # echo VERSION=$VERSION
-          # docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          # docker push $IMAGE_ID:$VERSION
+          # For issue comments, use a short sha as the version
+          VERSION="$(echo "${{ github.sha }}" | cut -c-7)"
+
+          # For tagged releases, use the version tag instead
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          echo IMAGE_ID="$IMAGE_ID"
+          echo VERSION="$VERSION"
+
+          docker tag "$IMAGE_NAME" "$IMAGE_ID":"$VERSION"
+          docker push "$IMAGE_ID":"$VERSION"
