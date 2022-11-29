@@ -39,7 +39,7 @@ jobs:
 
           # For issue comments, use a short sha as the version
 
-          VERSION="$(echo "${{ github.sha }}" | cut -c-7)"
+          VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }} -q .head.sha | cut -c-7)"
 
           # For tagged releases, use the version tag instead
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
