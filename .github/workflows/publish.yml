@@ -31,7 +31,7 @@ jobs:
           IMAGE_ID=ghcr.io/elipinska/"$IMAGE_NAME"
 
           # For issue comments, use a short sha as the version
-          VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.pull_request.number }} -q .head.sha | | cut -c-7)"
+          VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.pull_request.number }} -q .head.sha | cut -c-7)"
 
           # For tagged releases, use the version tag instead
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
