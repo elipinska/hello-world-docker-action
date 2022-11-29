@@ -14,7 +14,7 @@ jobs:
   # See also https://docs.docker.com/docker-hub/builds/
   push:
     runs-on: ubuntu-latest
-    if: (github.event.issue.pull_request && contains(github.event.comment.body, 'container push')) || (github.event.action == 'released')
+    if: (github.event.issue.pull_request && contains(github.event.comment.body, 'container push')) || github.event.release
     permissions:
       packages: write
       contents: read
@@ -32,6 +32,7 @@ jobs:
       - name: Push image
         run: |
           echo "${{ github.ref }}"
+          echo "${{ github.sha }}" | cut -c-7
           # IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
 
           # # Change all uppercase to lowercase
