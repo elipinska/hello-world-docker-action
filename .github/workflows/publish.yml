@@ -1,4 +1,4 @@
-name: Push to Github Container Registry # test
+name: Push to Github Container Registry
 
 on:
   release:
@@ -39,7 +39,7 @@ jobs:
 
           # For issue comments, use a short sha as the version
 
-          VERSION="${{ github.sha }}" | cut -c-7)"
+          VERSION="${{ github.sha }}" | cut -c-7"
 
           # For tagged releases, use the version tag instead
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
