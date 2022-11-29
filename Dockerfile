@@ -6,6 +6,8 @@ FROM ruby:2.7-slim-bullseye
 # RUN curl -sSL https://install.python-poetry.org | python3.9 - --version 1.1.13
 # ENV PATH="${PATH}:/${POETRY_HOME}/bin"
 
+RUN echo "hello heloooo"
+
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
