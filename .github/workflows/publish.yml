@@ -1,8 +1,9 @@
 name: Push to Github Container Registry
 
 on:
-  release:
-    types: [released]
+  push:
+    tags:
+      - "v*"
   issue_comment:
     types: [created]
 env:
@@ -37,20 +38,18 @@ jobs:
         run: |
           IMAGE_ID=ghcr.io/elipinska/"$IMAGE_NAME"
 
+          comment="${{ github.event.comment }}"
+          ref="${{ github.ref }}"
           # For issue comments, use a short sha as the version
-          if [ "${{ github.event.issue.number }}" ]
+          if [ -n "$issue" ]
           then
-            VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }} -q .head.sha | cut -c-7)"
-          fi
-
+            VERSION="$(gh api repos/${{ github.repository }}/pulls/${{ github.event.comment }} -q .head.sha | cut -c-7)"
           # For tagged releases, use the version tag instead
-          if [[ "${{ github.ref }}" == "refs/tags/"* ]]
+          elif [[ "$ref" == "refs/tags/"* ]]
           then
             VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
           fi
-
           echo IMAGE_ID="$IMAGE_ID"
           echo VERSION="$VERSION"
-
           docker tag "$IMAGE_NAME" "$IMAGE_ID":"$VERSION"
           docker push "$IMAGE_ID":"$VERSION"
