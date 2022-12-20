@@ -57,7 +57,7 @@ jobs:
           #   VERSION="${ref/refs\/tags\//}"
           # fi
 
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="v${{ github.event.inputs.version }}"
 
           echo IMAGE_ID="$IMAGE_ID"
           echo VERSION="$VERSION"

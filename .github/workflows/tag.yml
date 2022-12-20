@@ -15,13 +15,13 @@ jobs:
       - name: Push tag
         id: release-gem
         run: |
-          tagname="v1.28"
+          tagname="1.29"
           git config user.name "$(git log -1 --pretty=format:%an)"
           git config user.email "$(git log -1 --pretty=format:%ae)"
           git tag -a -m "Gem release $tagname" "$tagname"
           git push origin "$tagname"
 
-          echo "pushed-version=v1.28" >> "$GITHUB_OUTPUT"
+          echo "pushed-version=1.29" >> "$GITHUB_OUTPUT"
   trigger-ghcr-push:
     name: Trigger container push to GHCR
     runs-on: ubuntu-latest
